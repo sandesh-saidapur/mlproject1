@@ -4,6 +4,6 @@ seaborn
 scikit-learn
 flask
 catboost
-xgboost=1.7.6
+xgboost==1.7.6
 dill
 #-e .
