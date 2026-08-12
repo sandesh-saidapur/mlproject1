@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template
-import traceback
-
+from flask import Flask, request, jsonify, render_template
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from src.pipeline.predict_pipeline import CustomData, PredictPipeline
 
 application = Flask(__name__)
@@ -18,14 +19,7 @@ def predict_datapoint():
     if request.method == 'GET':
         return render_template('home.html')
 
-    try:
-
-        print("=" * 80)
-        print("FORM DATA")
-        print(request.form)
-        print(request.form.to_dict())
-        print("=" * 80)
-
+    else:
         data = CustomData(
             gender=request.form.get('gender'),
             race_ethnicity=request.form.get('race_ethnicity'),
@@ -36,38 +30,17 @@ def predict_datapoint():
             writing_score=float(request.form.get('writing_score'))
         )
 
-        pred_df = data.get_data_as_dataframe()
+        print("Form Data:", request.form)
+        print("Dictionary:", request.form.to_dict())
 
-        print("INPUT DATAFRAME")
+        pred_df = data.get_data_as_dataframe()
         print(pred_df)
 
         predict_pipeline = PredictPipeline()
-
-        print("Loading model...")
-
         results = predict_pipeline.predict(pred_df)
 
-        print("Prediction:", results)
-
-        return render_template(
-            'home.html',
-            results=results[0]
-        )
-
-    except Exception:
-
-        error = traceback.format_exc()
-
-        print("=" * 80)
-        print("APPLICATION ERROR")
-        print(error)
-        print("=" * 80)
-
-        return f"""
-        <h1>Application Error</h1>
-        <pre>{error}</pre>
-        """
+        return render_template('home.html', results=results[0])
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0")
